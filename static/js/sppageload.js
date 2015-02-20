@@ -30,6 +30,7 @@ var spPageLoadClass = function () {
 	// });
 	$(document).on('pjax:beforeSend', function(option, xhr) {
 		xhr.setRequestHeader('X-Requested-With', {toString: function(){ return ''; }});
+		$('.ow_tip').hide(); 
 	});
 	$(document).on('pjax:error', function(options, xhr, textStatus, error) {
 
