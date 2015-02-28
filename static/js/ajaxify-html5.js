@@ -109,10 +109,15 @@
 			// Set Loading
 			$body.addClass('loading');
 
+			var interval_id = window.setInterval("", 9999); // Get a reference to the last
+                                                // interval +1
+			for (var i = 1; i < interval_id; i++)
+		        window.clearInterval(i);
+
 			// Start Fade Out
 			// Animating to opacity to 0 still keeps the element's height intact
 			// Which prevents that annoying pop bang issue when loading in new content
-			$content.animate({opacity:0.6},500);
+			$content.animate({opacity:0.6},300);
 			
 			// Ajax Request the Traditional Page
 			$.ajax({
