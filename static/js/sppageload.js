@@ -7,7 +7,8 @@ var spPageLoadClass = function () {
 		$.pjax.defaults.scrollTo = false;
 		$(document).pjax('a',$('.ow_page_wrap'), {
 			timeout: 6000,
-			fragment: 'realbody'
+			fragment: 'realbody',
+			maxCacheLength: 1
 		});	
 
 		$('script[src]').each(function(index,script){
@@ -30,7 +31,7 @@ var spPageLoadClass = function () {
 	// });
 	$(document).on('pjax:beforeSend', function(option, xhr) {
 		xhr.setRequestHeader('X-Requested-With', {toString: function(){ return ''; }});
-		$('.ow_tip').hide(); 
+		// $('.ow_tip').hide();
 	});
 	$(document).on('pjax:error', function(options, xhr, textStatus, error) {
 

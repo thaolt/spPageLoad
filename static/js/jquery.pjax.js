@@ -259,6 +259,8 @@ function pjax(options) {
 
     var container = extractContainer(data, xhr, options)
 
+    console.log(container);
+
     // If there is a layout version mismatch, hard load the new url
     if (currentVersion && latestVersion && currentVersion !== latestVersion) {
       locationReplace(container.url)
@@ -295,41 +297,51 @@ function pjax(options) {
       state: pjax.state,
       previousState: previousState
     })
-    context.html(container.contents)
+    // context.html(container.contents)
+    document.open();
+    document.write(container.contents);
+    document.close();
 
     // FF bug: Won't autofocus fields that are inserted via JS.
     // This behavior is incorrect. So if theres no current focus, autofocus
     // the last field.
     //
     // http://www.w3.org/html/wg/drafts/html/master/forms.html
-    var autofocusEl = context.find('input[autofocus], textarea[autofocus]').last()[0]
-    if (autofocusEl && document.activeElement !== autofocusEl) {
-      autofocusEl.focus();
-    }
+    // var autofocusEl = context.find('input[autofocus], textarea[autofocus]').last()[0]
+    // if (autofocusEl && document.activeElement !== autofocusEl) {
+    //   autofocusEl.focus();
+    // }
 
-    // console.log('container.scripts');
-    // console.log(container.scripts);
+    // // console.log('container.scripts');
+    // // console.log(container.scripts);
 
-    // includePreJs
+    // // includePreJs
 
-    // console.log(container.preScripts);
-    for (var i = 0; i < container.preScripts.length; i++) {
-      $.globalEval( $(container.preScripts[i]).text() );
-    };
+    // // console.log(container.preScripts);
+    // for (var i = 0; i < container.preScripts.length; i++) {
+    //   $.globalEval( $(container.preScripts[i]).text() );
+    // };
 
-    for (var i = 0; i < container.cssHead.length; i++) {
-      document.head.appendChild(container.cssHead[i]);
-    };
+    // for (var i = 0; i < container.cssHead.length; i++) {
+    //   document.head.appendChild(container.cssHead[i]);
+    // };
 
-    executeScriptTags(container.scripts,function(sc){
-      // console.log('executing onload scripts');
-      // console.log(sc);
-      $.globalEval(container.onloadScripts.text());
-    });
+    // executeScriptTags(container.scripts,function(sc){
+    //   // console.log('executing onload scripts');
+    //   // console.log(sc);
+    //   // setTimeout(function(){
+    //     onloadJs = document.createElement('script')
+    //     onloadJs.type="text/javascript";
+    //     onloadJs.text = container.onloadScripts.text();
+    //     document.head.appendChild(onloadJs);
+    //     // $.globalEval();
+    //     // $(document).trigger('ready')
+    //   // },600);
+    // });
 
-    includeStyleSheets(container.styleSheets,function(sc){
-      // console.log('executing onload scripts');
-    });
+    // includeStyleSheets(container.styleSheets,function(sc){
+    //   // console.log('executing onload scripts');
+    // });
     // console.log('container.onloadScripts');
     // console.log(container.onloadScripts.innerHTML)
     
@@ -697,68 +709,68 @@ function extractContainer(data, xhr, options) {
   // Prefer X-PJAX-URL header if it was set, otherwise fallback to
   // using the original requested url.
   obj.url = stripPjaxParam(xhr.getResponseHeader('X-PJAX-URL') || options.requestUrl)
-
+  obj.contents = data;
   // Attempt to parse response html into elements
-  if (fullDocument) {
-    var $head = $(parseHTML(data.match(/<head[^>]*>([\s\S.]*)<\/head>/i)[0]))
-    var $body = $(parseHTML(data.match(/<body[^>]*>([\s\S.]*)<\/body>/i)[0]))
-  } else {
-    var $head = $body = $(parseHTML(data))
-  }
+  // if (fullDocument) {
+  //   var $head = $(parseHTML(data.match(/<head[^>]*>([\s\S.]*)<\/head>/i)[0]))
+  //   var $body = $(parseHTML(data.match(/<body[^>]*>([\s\S.]*)<\/body>/i)[0]))
+  // } else {
+  //   var $head = $body = $(parseHTML(data))
+  // }
 
-  // If response data is empty, return fast
-  if ($body.length === 0)
-    return obj
+  // // If response data is empty, return fast
+  // if ($body.length === 0)
+  //   return obj
 
-  // If there's a <title> tag in the header, use it as
-  // the page's title.
-  obj.title = findAll($head, 'title').last().text()
+  // // If there's a <title> tag in the header, use it as
+  // // the page's title.
+  // obj.title = findAll($head, 'title').last().text()
 
-  if (options.fragment) {
-    // If they specified a fragment, look for it in the response
-    // and pull it out.
-    if (options.fragment === 'body') {
-      var $fragment = $body
-    } else {
-      var $fragment = findAll($body, options.fragment).first()
-    }
+  // if (options.fragment) {
+  //   // If they specified a fragment, look for it in the response
+  //   // and pull it out.
+  //   if (options.fragment === 'body') {
+  //     var $fragment = $body
+  //   } else {
+  //     var $fragment = findAll($body, options.fragment).first()
+  //   }
 
-    if ($fragment.length) {
-      obj.contents = options.fragment === 'body' ? $fragment : $fragment.contents()
+  //   if ($fragment.length) {
+  //     obj.contents = options.fragment === 'body' ? $fragment : $fragment.contents()
 
-      // If there's no title, look for data-title and title attributes
-      // on the fragment
-      if (!obj.title)
-        obj.title = $fragment.attr('title') || $fragment.data('title')
-    }
+  //     // If there's no title, look for data-title and title attributes
+  //     // on the fragment
+  //     if (!obj.title)
+  //       obj.title = $fragment.attr('title') || $fragment.data('title')
+  //   }
 
-  } else if (!fullDocument) {
-    obj.contents = $body
-  }
+  // } else if (!fullDocument) {
+  //   obj.contents = $body
+  // }
 
-  // Clean up any <title> tags
-  if (obj.contents) {
-    // Remove any parent title elements
-    obj.contents = obj.contents.not(function() { return $(this).is('title') })
+  // // Clean up any <title> tags
+  // if (obj.contents) {
+  //   // Remove any parent title elements
+  //   obj.contents = obj.contents.not(function() { return $(this).is('title') })
 
-    // Then scrub any titles from their descendants
-    obj.contents.find('title').remove()
+  //   // Then scrub any titles from their descendants
+  //   obj.contents.find('title').remove()
 
-    // Gather all script[src] elements
-    obj.scripts = findAll(obj.contents, 'script[src]').remove()
-    obj.preScripts = findAll(obj.contents, 'script.jsPreInclude').remove()
-    obj.cssHead = findAll(obj.contents, 'link.cssHead').remove()
-    obj.onloadScripts = findAll(obj.contents, 'script.onloadJs').remove()
-    obj.styleSheets = findAll(obj.contents, 'link[href]').remove()
-    obj.contents = obj.contents.not(obj.onloadScripts)
-    obj.contents = obj.contents.not(obj.scripts)
-    obj.contents = obj.contents.not(obj.preScripts)
-    obj.contents = obj.contents.not(obj.styleSheets)
-    obj.contents = obj.contents.not(obj.cssHead)
-  }
+  //   // Gather all script[src] elements
+  //   obj.scripts = findAll(obj.contents, 'script[src]').remove()
+  //   obj.preScripts = findAll(obj.contents, 'script.jsPreInclude').remove()
+  //   obj.cssHead = findAll(obj.contents, 'link.cssHead').remove()
+  //   obj.onloadScripts = findAll(obj.contents, 'script.onloadJs').remove()
+  //   obj.styleSheets = findAll(obj.contents, 'link[href]').remove()
+  //   obj.contents = obj.contents.not(obj.onloadScripts)
+  //   obj.contents = obj.contents.not(obj.scripts)
+  //   obj.contents = obj.contents.not(obj.preScripts)
+  //   obj.contents = obj.contents.not(obj.styleSheets)
+  //   obj.contents = obj.contents.not(obj.cssHead)
+  // }
 
-  // Trim any whitespace off the title
-  if (obj.title) obj.title = $.trim(obj.title)
+  // // Trim any whitespace off the title
+  // if (obj.title) obj.title = $.trim(obj.title)
 
   return obj
 }
@@ -834,7 +846,7 @@ function includeStyleSheets(styleSheets, callback) {
     if (doneStyleSheets>=styleSheets.length)
       callback(returnStyleSheets)
   }
-console.log(styleSheets);
+// console.log(styleSheets);
   styleSheets.each(function(index) {
     var href = this.href
     // console.log(href);
